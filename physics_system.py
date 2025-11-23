@@ -47,8 +47,8 @@ class DoublePendulum(ChaoticSystem):
         
         # defining the initial conditions
         if init_state is None:
-            theta1=np.pi/4
-            theta2=np.pi/3
+            theta1=np.random.uniform(low=-np.pi/3, high=np.pi/3)
+            theta2=np.random.uniform(low=-np.pi/4, high=np.pi/4)
             omega1,omega2=0,0
             y0=np.array([theta1,omega1,theta2,omega2])
         else:
@@ -121,11 +121,7 @@ class ChuaCircuit(ChaoticSystem):
         y=sol.y
         t=sol.t
 
-        return params,t,y
-
-
-
-        
+        return params,t,y     
         
 
 
