@@ -39,6 +39,7 @@ class ParamInferenceTransformer(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.input_proj=nn.Linear(config.input_dim,config.embed_dim)
+        self.position_encoding=PositionalEncoding(config,max_len=5000)
         transformerencoderlayer=nn.TransformerEncoderLayer(d_model=config.embed_dim,
                                                     nhead=config.n_head,
                                                     dropout=config.dropout,
@@ -55,6 +56,8 @@ class ParamInferenceTransformer(nn.Module):
     
     def forward(self,x):
         x=self.input_proj(x)
+
+        x=self.position_encoding(x)
 
         x=self.encoder(x)
 
