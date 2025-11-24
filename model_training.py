@@ -63,29 +63,29 @@ for target_params, traj in data:
     print("Batch trajectories:", traj.shape)            # -> [16, 5000, 4]
     break  
 
-# from torch.nn import MSELoss
-# from torch.optim import Adam
+from torch.nn import MSELoss
+from torch.optim import Adam
 
-# from transformer_model import Config,ParamInferenceTransformer
+from transformer_model import Config,ParamInferenceTransformer
 
-# modelconfig=Config(n_head=2,embed_dim=32,hidden_dim=64)
-# model=ParamInferenceTransformer(modelconfig)
+modelconfig=Config(n_head=2,embed_dim=32,hidden_dim=64)
+model=ParamInferenceTransformer(modelconfig)
 
-# obj_func=MSELoss()
-# optimizer=Adam(model.parameters(),lr=1e-4)
-# num_epochs=1
-# for epoch in range(num_epochs):
-#     epoch_loss = 0
-#     for target_params, traj in data:
-#         optimizer.zero_grad()
-#         pred_params = model(traj)
-#         loss = obj_func(pred_params, target_params)
-#         loss.backward()
-#         optimizer.step()
-#         epoch_loss += loss.item()
+obj_func=MSELoss()
+optimizer=Adam(model.parameters(),lr=1e-4)
+num_epochs=1
+for epoch in range(num_epochs):
+    epoch_loss = 0
+    for target_params, traj in data:
+        optimizer.zero_grad()
+        pred_params = model(traj)
+        loss = obj_func(pred_params, target_params)
+        loss.backward()
+        optimizer.step()
+        epoch_loss += loss.item()
     
-#     avg_loss = epoch_loss / len(data)  # average over batches
-#     print(f"Epoch {epoch}: avg_loss = {avg_loss:.6f}")
+    avg_loss = epoch_loss / len(data)  # average over batches
+    print(f"Epoch {epoch}: avg_loss = {avg_loss:.6f}")
 
 
 
