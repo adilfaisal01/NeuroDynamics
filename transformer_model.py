@@ -13,6 +13,27 @@ class Config:
     bias:bool=True
     num_params:int=4
 
+import torch
+import math
+
+class PositionalEncoding(nn.Module):
+
+    def __init__(self, config,max_len=5000):
+        super().__init__()
+        self.dropout = nn.Dropout(p=config.dropout)
+
+        position = torch.arange(max_len).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, config.embed_dim, 2) * (-math.log(10000.0) / config.embed_dim))
+        pe = torch.zeros(max_len, 1, config.embed_dim)
+        pe[:, 0, 0::2] = torch.sin(position * div_term)
+        pe[:, 0, 1::2] = torch.cos(position * div_term)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+    
+        seq_len = x.size(1)
+        x = x + self.pe[:, :seq_len, :] 
+        return self.dropout(x)
 
 class ParamInferenceTransformer(nn.Module):
     def __init__(self, config):
