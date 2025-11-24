@@ -15,6 +15,9 @@ class ChaoticSystem:
     
     def solve_system(self, init_state=None, time_steps=50000, T=50):
         raise NotImplementedError('implement your solver here')
+    def noisy_data_output(self,y,noise_std=0.15):
+        return y+np.random.normal(loc=0,scale=noise_std,size=y.shape)
+
 
 
 
