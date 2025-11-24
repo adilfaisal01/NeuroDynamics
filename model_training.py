@@ -68,7 +68,7 @@ from torch.optim import Adam
 
 from transformer_model import Config,ParamInferenceTransformer
 
-modelconfig=Config(n_head=2,embed_dim=32,hidden_dim=64)
+modelconfig=Config(n_head=2,embed_dim=16,hidden_dim=32)
 model=ParamInferenceTransformer(modelconfig)
 
 obj_func=MSELoss()
