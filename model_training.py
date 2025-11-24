@@ -2,7 +2,16 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import numpy as np
 import torch
+import argparse
 
+parser = argparse.ArgumentParser(description="Train Transformer on double pendulum data")
+parser.add_argument("--embed_dim", type=int, default=16, help="Embedding dimension")
+parser.add_argument("--hidden_dim", type=int, default=32, help="Feedforward hidden dimension")
+parser.add_argument("--n_head", type=int, default=2, help="Number of attention heads")
+parser.add_argument("--batch_size", type=int, default=32, help="Batch size")
+parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
+parser.add_argument("--num_epochs", type=int, default=1, help="Number of training epochs")
+args = parser.parse_args()
 
 trainingdata=pd.read_csv('dataset_doublependulum.csv')
 config_groups=trainingdata.groupby('config_id')
