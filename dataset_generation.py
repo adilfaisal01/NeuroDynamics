@@ -8,11 +8,11 @@ start_time=time.time()
 # double pendulum-- dataset generation, 10k configurations
 dp=DoublePendulum()
 Dataset_DoublePendulum=pd.DataFrame({})
-for i in range(200):
+for i in range(400):
     sample_parameters=dp.sample_parameters()
     p_groundtruth,T,y_nonoise=dp.solve_system()
     y_noisy=dp.noisy_data_output(y_nonoise)
-    # print(y_noisy.shape)
+    print(y_noisy.shape)
 
     dt=(T[-1]-T[0])/len(T)
     
@@ -39,44 +39,44 @@ for i in range(200):
     Dataset_DoublePendulum=pd.concat([Dataset_DoublePendulum, df])
     print(f'Config Id: {i} completed for DP')
 
-Dataset_DoublePendulum.to_csv('dataset_doublependulum.csv',index=False)
+Dataset_DoublePendulum.to_csv('dataset_doublependulum_22.csv',index=False)
 
 totaltime=time.time()-start_time
 print(f'time in seconds:{totaltime}')    
 
 
-cc=ChuaCircuit()
-Dataset_ChuaCircuit=pd.DataFrame({})
-for j in range(200):
-    sample_parameters=cc.sample_parameters()
-    p_groundtruth_cc,T_cc,y_nonoise_cc=cc.solve_system()
-    y_noisy_cc=cc.noisy_data_output(y_nonoise_cc)
-    # print(y_noisy.shape)
+# cc=ChuaCircuit()
+# Dataset_ChuaCircuit=pd.DataFrame({})
+# for j in range(200):
+#     sample_parameters=cc.sample_parameters()
+#     p_groundtruth_cc,T_cc,y_nonoise_cc=cc.solve_system()
+#     y_noisy_cc=cc.noisy_data_output(y_nonoise_cc)
+#     # print(y_noisy.shape)
 
-    # dt=(T[-1]-T[0])/len(T)
+#     # dt=(T[-1]-T[0])/len(T)
     
 
-    # estimated_angular_velocity_pendulum1=savgol_filter(x=y_noisy[0,:],deriv=1,delta=dt,polyorder=3,window_length=51)
-    # estimated_angular_velocity_pendulum2=savgol_filter(x=y_noisy[1,:],deriv=1,delta=dt,polyorder=3,window_length=51)
+#     # estimated_angular_velocity_pendulum1=savgol_filter(x=y_noisy[0,:],deriv=1,delta=dt,polyorder=3,window_length=51)
+#     # estimated_angular_velocity_pendulum2=savgol_filter(x=y_noisy[1,:],deriv=1,delta=dt,polyorder=3,window_length=51)
 
-    df_cc=pd.DataFrame({
-        "config_id":j,
-        "inductance":p_groundtruth_cc["L"],
-        "capacitance 1":p_groundtruth_cc["C1"],
-        "capaciatnce 2":p_groundtruth_cc["C2"],
-        "resistance":p_groundtruth_cc["R"],
-        "time": T_cc,
-        "noisy x":y_noisy_cc[0,:].T,
-        "noisy y":y_noisy_cc[1,:].T,
-        "noisy z":y_noisy_cc[2,:].T,
-        "no noise x":y_nonoise_cc[0,:].T,
-        "no noise y":y_nonoise_cc[1,:].T,
-        "no noise z":y_nonoise_cc[2,:].T,
-        })
-    Dataset_ChuaCircuit=pd.concat([Dataset_ChuaCircuit, df_cc])
-    print(f'Config Id: {j} completed for CC')
+#     df_cc=pd.DataFrame({
+#         "config_id":j,
+#         "inductance":p_groundtruth_cc["L"],
+#         "capacitance 1":p_groundtruth_cc["C1"],
+#         "capaciatnce 2":p_groundtruth_cc["C2"],
+#         "resistance":p_groundtruth_cc["R"],
+#         "time": T_cc,
+#         "noisy x":y_noisy_cc[0,:].T,
+#         "noisy y":y_noisy_cc[1,:].T,
+#         "noisy z":y_noisy_cc[2,:].T,
+#         "no noise x":y_nonoise_cc[0,:].T,
+#         "no noise y":y_nonoise_cc[1,:].T,
+#         "no noise z":y_nonoise_cc[2,:].T,
+#         })
+#     Dataset_ChuaCircuit=pd.concat([Dataset_ChuaCircuit, df_cc])
+#     print(f'Config Id: {j} completed for CC')
 
-Dataset_ChuaCircuit.to_csv('dataset_chuacircuit.csv',index=False)
+# Dataset_ChuaCircuit.to_csv('dataset_chuacircuit.csv',index=False)
 
-totaltime=time.time()-start_time
-print(f'time in seconds:{totaltime}')    
+# totaltime=time.time()-start_time
+# print(f'time in seconds:{totaltime}')    

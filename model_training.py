@@ -13,7 +13,7 @@ parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
 parser.add_argument("--num_epochs", type=int, default=1, help="Number of training epochs")
 args = parser.parse_args()
 
-trainingdata=pd.read_csv('dataset_doublependulum.csv')
+trainingdata=pd.read_csv('dataset_doublependulum_22.csv')
 config_groups=trainingdata.groupby('config_id')
 trajectories={cid: group.copy() for cid,group in config_groups}
 
@@ -65,7 +65,7 @@ class DoublePendulumData(Dataset):
         target_params=self.params[index]
         return target_params,traj
    
-data=DataLoader(DoublePendulumData(param_tensor,norm_trajectories),batch_size=32,shuffle=True)
+data=DataLoader(DoublePendulumData(param_tensor,norm_trajectories),batch_size=args.batch_size,shuffle=True)
 
 for target_params, traj in data:
     print("Batch target params:", target_params.shape)  # -> [16, 4]
@@ -77,13 +77,13 @@ from torch.optim import Adam
 
 from transformer_model import Config,ParamInferenceTransformer
 
-modelconfig=Config(n_head=2,embed_dim=16,hidden_dim=32)
+modelconfig=Config(n_head=args.n_head,embed_dim=args.embed_dim,hidden_dim=args.hidden_dim)
 model=ParamInferenceTransformer(modelconfig)
 
 obj_func=MSELoss()
-optimizer=Adam(model.parameters(),lr=1e-4)
-num_epochs=1
-for epoch in range(num_epochs):
+optimizer=Adam(model.parameters(),lr=args.lr)
+
+for epoch in range(args.num_epochs):
     epoch_loss = 0
     for target_params, traj in data:
         optimizer.zero_grad()

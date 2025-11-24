@@ -17,6 +17,8 @@ class ChaoticSystem:
         raise NotImplementedError('implement your solver here')
 
 
+
+
 class DoublePendulum(ChaoticSystem):
 
     "Source for double pendulum: https://web.mit.edu/jorloff/www/chaosTalk/double-pendulum/double-pendulum-en.html"
@@ -43,7 +45,7 @@ class DoublePendulum(ChaoticSystem):
 
         return np.array([omega1,alpha1,omega2,alpha2])
     
-    def solve_system(self, init_state=None, time_steps=50000, T=50):
+    def solve_system(self, init_state=None, time_steps=5000, T=50):
         
         # defining the initial conditions
         if init_state is None:
@@ -71,6 +73,8 @@ class DoublePendulum(ChaoticSystem):
         t=sol.t
 
         return params,t,y
+    def noisy_data_output(self,y,noise_std=0.15):
+        return y+np.random.normal(loc=0,scale=noise_std,size=y.shape)
 
 class ChuaCircuit(ChaoticSystem):
 
