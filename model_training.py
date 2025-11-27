@@ -11,10 +11,16 @@ parser.add_argument("--n_head", type=int, default=2, help="Number of attention h
 parser.add_argument("--batch_size", type=int, default=32, help="Batch size")
 parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
 parser.add_argument("--num_epochs", type=int, default=1, help="Number of training epochs")
-parser.addargument("-- data_len",type=int,default=1000,help="downsampled length of trajectory if any")
+parser.add_argument("--dseq_len",type=int,default=1000,help="downsampled length of trajectory if any")
+parser.add_argument("-number_data",type=int,default=1,help="how many trajectories are we analyzing")
 args = parser.parse_args()
 
-trainingdata=pd.read_csv('dataset_doublependulum_22.csv')
+if args.number_data==2:
+    trainingdata=pd.read_csv('dataset_doublependulum_22.csv')
+elif args.number_data==1:
+    trainingdata=pd.read_csv('dataset_doublependulum_1000pts.csv')
+else:
+    raise ValueError("please choose either 1 or 2 for dataset config")
 config_groups=trainingdata.groupby('config_id')
 trajectories={cid: group.copy() for cid,group in config_groups}
 
@@ -78,7 +84,7 @@ from torch.optim import Adam
 
 from transformer_model import Config,ParamInferenceTransformer
 
-modelconfig=Config(n_head=args.n_head,embed_dim=args.embed_dim,hidden_dim=args.hidden_dim,data_len=args.data_len)
+modelconfig=Config(n_head=args.n_head,embed_dim=args.embed_dim,hidden_dim=args.hidden_dim,data_len=args.dseq_len)
 model=ParamInferenceTransformer(modelconfig)
 
 obj_func=MSELoss()

@@ -41,7 +41,7 @@ class PositionalEncoding(nn.Module):
 class ParamInferenceTransformer(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.downsampling=nn.AvgPool1d(kernel=5000//config.data_len)
+        self.downsampling=nn.AvgPool1d(kernel_size=5000//config.data_len)
         self.input_proj=nn.Linear(config.input_dim,config.embed_dim)
         self.position_encoding=PositionalEncoding(config)
         transformerencoderlayer=nn.TransformerEncoderLayer(d_model=config.embed_dim,
