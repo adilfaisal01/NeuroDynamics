@@ -1,6 +1,6 @@
 # install pytorch with cuda
 
-FROM pytorch/pytorch:2.9.1-cuda-12.8-cudnn9-runtime
+FROM pytorch/pytorch:2.9.1-cuda12.8-cudnn9-runtime
 
 ENV DOCKER_USER_HOME=/root
 ENV DEBIAN_FRONTEND=noninteractive
