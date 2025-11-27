@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  cs523docker:
+    build:
+      context: .
+      dockerfile: DockerFile.dockerfile
+      
+    container_name: transformer-worker
+    network_mode: "host"
+
+    environment:
+      LR: ${LR:-1e-4} #learning rate
+      DS_LEN: ${DS_LEN:-1000} #downsampling from original sequence
+      NE: ${NE:-100} #number of epochs
+      BATCH: ${BATCH:-32} #batch_size
+      ED: ${ED:-128} #embed dimensions
+      HEAD: ${HEAD:-32} #number of attention heads
+      HD: ${HD:-1024} #FFN dimensions
+      NAME: ${Model_name:-"model_file.pth"} # model name
+
+      #DISPLAY: ${DISPLAY}
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
+      OMNI_KIT_ALLOW_ROOT: 1
+      TERM: xterm
+      PYTHONPATH: /deeplearningtransformers
+      OUTPUT_DIR: /deeplearningtransformers/outputs
+      DATASET_DIR: /deeplearningtransformers/datasets
+
+    volumes:
+      - ./outputs:/deeplearningtransformers/outputs:rw
+      - ./datasets:/deeplearningtransformers/datasets:rw
+      - ./checkpoints:/deeplearningtransformers/checkpoints:rw
+      - ./entrypoint.sh:/deeplearningtransformers/entrypoint.sh:ro
+      - ./:/deeplearningtransformers:rw  # full project mounted
+
+    runtime: nvidia
+    stdin_open: true
+    tty: true
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    entrypoint: ["/bin/bash", "/deeplearningtransformers/entrypoint.sh"]
+    # volumes:
+    
+
+    # runtime: nvidia
+    # stdin_open: true
+    # tty: true
+
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    
+    # entrypoint: ["/"]
+
