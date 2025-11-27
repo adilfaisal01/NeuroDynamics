@@ -101,7 +101,7 @@ from transformer_model import Config,ParamInferenceTransformer
 
 ## training the model
 modelconfig=Config(n_head=args.n_head,embed_dim=args.embed_dim,hidden_dim=args.hidden_dim,data_len=args.dseq_len)
-model=ParamInferenceTransformer(modelconfig)
+model=ParamInferenceTransformer(modelconfig).to(dev)
 
 obj_func=MSELoss()
 optimizer=Adam(model.parameters(),lr=args.lr)
