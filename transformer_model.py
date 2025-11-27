@@ -12,19 +12,20 @@ class Config:
     n_head:int=32
     bias:bool=True
     num_params:int=4
+    data_len:int=5000
 
 import torch
 import math
 
 class PositionalEncoding(nn.Module):
 
-    def __init__(self, config,max_len=5000):
+    def __init__(self, config):
         super().__init__()
         self.dropout = nn.Dropout(p=config.dropout)
 
-        position = torch.arange(max_len).unsqueeze(1)
+        position = torch.arange(config.data_len).unsqueeze(1)
         div_term = torch.exp(torch.arange(0, config.embed_dim, 2) * (-math.log(10000.0) / config.embed_dim))
-        pe = torch.zeros(max_len, config.embed_dim)
+        pe = torch.zeros(config.data_len, config.embed_dim)
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0)
@@ -40,8 +41,9 @@ class PositionalEncoding(nn.Module):
 class ParamInferenceTransformer(nn.Module):
     def __init__(self, config):
         super().__init__()
+        self.downsampling=nn.AvgPool1d(kernel=5000//config.data_len)
         self.input_proj=nn.Linear(config.input_dim,config.embed_dim)
-        self.position_encoding=PositionalEncoding(config,max_len=5000)
+        self.position_encoding=PositionalEncoding(config)
         transformerencoderlayer=nn.TransformerEncoderLayer(d_model=config.embed_dim,
                                                     nhead=config.n_head,
                                                     dropout=config.dropout,
@@ -49,7 +51,7 @@ class ParamInferenceTransformer(nn.Module):
                                                     batch_first=True
                                                     )
         self.encoder=nn.TransformerEncoder(num_layers=config.num_layers,encoder_layer=transformerencoderlayer)
-        self.pool=nn.AvgPool1d(kernel_size=5000)
+        self.pool=nn.AdaptiveAvgPool1d(output_size=1)
         self.regression=nn.Sequential(
             nn.Linear(in_features=config.embed_dim,out_features=256),
             nn.ReLU(),
@@ -57,6 +59,12 @@ class ParamInferenceTransformer(nn.Module):
         )
     
     def forward(self,x):
+        x=x.transpose(1,2)
+
+        x=self.downsampling(x)
+
+        x=x.transpose(1,2)
+        
         x=self.input_proj(x)
 
         x=self.position_encoding(x)

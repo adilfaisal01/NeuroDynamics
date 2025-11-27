@@ -11,6 +11,7 @@ parser.add_argument("--n_head", type=int, default=2, help="Number of attention h
 parser.add_argument("--batch_size", type=int, default=32, help="Batch size")
 parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
 parser.add_argument("--num_epochs", type=int, default=1, help="Number of training epochs")
+parser.addargument("-- data_len",type=int,default=1000,help="downsampled length of trajectory if any")
 args = parser.parse_args()
 
 trainingdata=pd.read_csv('dataset_doublependulum_22.csv')
@@ -77,7 +78,7 @@ from torch.optim import Adam
 
 from transformer_model import Config,ParamInferenceTransformer
 
-modelconfig=Config(n_head=args.n_head,embed_dim=args.embed_dim,hidden_dim=args.hidden_dim)
+modelconfig=Config(n_head=args.n_head,embed_dim=args.embed_dim,hidden_dim=args.hidden_dim,data_len=args.data_len)
 model=ParamInferenceTransformer(modelconfig)
 
 obj_func=MSELoss()
@@ -96,7 +97,7 @@ for epoch in range(args.num_epochs):
     avg_loss = epoch_loss / len(data)  # average over batches
     print(f"Epoch {epoch}: avg_loss = {avg_loss:.6f}")
 
-
+torch.save(model.state_dict(),'model_weights.pth')
 
 
 
