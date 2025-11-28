@@ -195,7 +195,6 @@ all_targets = torch.cat(all_targets, dim=0).numpy()
 all_preds = torch.cat(all_preds, dim=0).numpy()
 
 errors=all_preds-all_targets
-
 for i in range(errors.shape[1]):
     plt.subplot(1, errors.shape[1], i+1)
     plt.plot(errors[:, i], marker='o', linestyle='', alpha=0.7)
@@ -208,7 +207,14 @@ plt.tight_layout()
 plt.savefig(f"outputs/true_vs_predicted {args.model_name} test error={avg_test_loss} run_time(s)={total_runtime} model {args.model_type}.png")
 # plt.show()
 
-
+## creating a csv of error files
+average_errors=errors.mean(axis=0)
+error_df=pd.DataFrame({
+    "param_index": list(range(errors.shape[1])),
+    "avg_error": average_errors
+})
+csv_path=f"outputs/true_vs_predicted {args.model_name} test error={avg_test_loss} run_time(s)={total_runtime} model {args.model_type}.csv"
+error_df.to_csv(csv_path,index=False)
 
 
         
