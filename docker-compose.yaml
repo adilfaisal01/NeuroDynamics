@@ -18,6 +18,7 @@ services:
       HEAD: ${HEAD:-32} #number of attention heads
       HD: ${HD:-1024} #FFN dimensions
       NAME: ${NAME:-"model_file.pth"} # model name
+      TYPE: ${TYPE:-"transformer"} # model type
 
       #DISPLAY: ${DISPLAY}
       NVIDIA_DRIVER_CAPABILITIES: all

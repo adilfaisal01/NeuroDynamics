@@ -22,6 +22,8 @@ parser.add_argument("--number_data", type=int, default=int(os.getenv("NUMBER_DAT
 
 # Output / model
 parser.add_argument("--model_name", type=str, default=os.getenv("NAME", "model_file.pth"), help="Name of saved model file")
+parser.add_argument("--model_type", type=str, default=os.getenv("TYPE", "model_file.pth"), help="Model Type")
+
 
 # Paths
 parser.add_argument("--dataset_dir", type=str, default=os.getenv("DATASET_DIR", "datasets"), help="Dataset folder path")
@@ -96,12 +98,20 @@ for target_params, traj in data:
 from torch.nn import MSELoss
 from torch.optim import Adam
 
-from transformer_model import Config,ParamInferenceTransformer
 
+if args.model_type=="transformer":
+    from transformer_model import Config,ParamInferenceTransformer
+    ## training the model
+    modelconfig=Config(n_head=args.n_head,embed_dim=args.embed_dim,hidden_dim=args.hidden_dim,data_len=args.dseq_len)
+    model=ParamInferenceTransformer(modelconfig).to(dev)
+elif args.model_type=="lstm":
+    from LSTMmodel import Config, parameterEstimationLSTM
+    modelconfig=Config(hidden_size=args.hidden_dim)
+    model=parameterEstimationLSTM(modelconfig).to(dev)
+else:
+    raise ValueError("Please clarify which model to be used for training and testing")
 
-## training the model
-modelconfig=Config(n_head=args.n_head,embed_dim=args.embed_dim,hidden_dim=args.hidden_dim,data_len=args.dseq_len)
-model=ParamInferenceTransformer(modelconfig).to(dev)
+print(f'training {args.model_type}')
 
 obj_func=MSELoss()
 optimizer=Adam(model.parameters(),lr=args.lr)
@@ -195,7 +205,7 @@ for i in range(errors.shape[1]):
     plt.title(f"Error for Param {i+1}")
 
 plt.tight_layout()
-plt.savefig(f"outputs/true_vs_predicted {args.model_name} test error={avg_test_loss} run_time(s)={total_runtime}.png")
+plt.savefig(f"outputs/true_vs_predicted {args.model_name} test error={avg_test_loss} run_time(s)={total_runtime} model {args.model_type}.png")
 # plt.show()
 
 
