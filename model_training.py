@@ -195,7 +195,7 @@ for i in range(errors.shape[1]):
     plt.title(f"Error for Param {i+1}")
 
 plt.tight_layout()
-plt.savefig(f"outputs/true_vs_predicted {args.model_name}.png")
+plt.savefig(f"outputs/true_vs_predicted {args.model_name} test error={avg_test_loss} run_time(s)={total_runtime}.png")
 # plt.show()
 
 

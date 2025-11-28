@@ -17,7 +17,7 @@ services:
       ED: ${ED:-128} #embed dimensions
       HEAD: ${HEAD:-32} #number of attention heads
       HD: ${HD:-1024} #FFN dimensions
-      NAME: ${Model_name:-"model_file.pth"} # model name
+      NAME: ${NAME:-"model_file.pth"} # model name
 
       #DISPLAY: ${DISPLAY}
       NVIDIA_DRIVER_CAPABILITIES: all
