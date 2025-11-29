@@ -189,7 +189,7 @@ with torch.no_grad():
         avg_test_loss=test_loss/len(test_data)
     loss_test.append(avg_test_loss)
 
-print(f'Test loss (MSE): {avg_test_loss}')
+print(f'Test loss (MSE): {np.mean(loss_test)}')
 
 all_targets = torch.cat(all_targets, dim=0).numpy()
 all_preds = torch.cat(all_preds, dim=0).numpy()
@@ -209,9 +209,11 @@ plt.savefig(f"outputs/true_vs_predicted {args.model_name} test error={avg_test_l
 
 ## creating a csv of error files
 average_errors=errors.mean(axis=0)
+error_var=np.var(errors,axis=0)
 error_df=pd.DataFrame({
     "param_index": list(range(errors.shape[1])),
-    "avg_error": average_errors
+    "avg_error": average_errors,
+    "Variance":error_var 
 })
 csv_path=f"outputs/true_vs_predicted {args.model_name} test error={avg_test_loss} run_time(s)={total_runtime} model {args.model_type}.csv"
 error_df.to_csv(csv_path,index=False)

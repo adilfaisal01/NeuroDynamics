@@ -9,6 +9,7 @@ __pycache__/
 # ignore csv
 *.csv
 outputs/*
+outputs_obs/*
 # Distribution / packaging
 .Python
 build/
