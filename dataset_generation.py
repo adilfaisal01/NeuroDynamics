@@ -7,8 +7,8 @@ import time
 start_time=time.time()
 # double pendulum-- dataset generation, 10k configurations
 dp=DoublePendulum()
-Dataset_DoublePendulum=pd.DataFrame({})
-for i in range(1000):
+Dataset_DoublePendulum=[]
+for i in range(10000):
     sample_parameters=dp.sample_parameters()
     p_groundtruth,T,y_nonoise=dp.solve_system()
     y_noisy=dp.noisy_data_output(y_nonoise)
@@ -36,10 +36,11 @@ for i in range(1000):
         "no noise angularvel pendulum 1":y_nonoise[1,:].T,
         "no noise angularvel pendulum 2":y_nonoise[3,:].T
         })
-    Dataset_DoublePendulum=pd.concat([Dataset_DoublePendulum, df])
+    Dataset_DoublePendulum.append(df)
     print(f'Config Id: {i} completed for DP')
 
-Dataset_DoublePendulum.to_csv('dataset_doublependulum_1000pts.csv',index=False)
+Dataset=pd.concat(Dataset_DoublePendulum)
+Dataset.to_parquet('dataset_doublependulum_1000pts.parquet',index=False)
 
 totaltime=time.time()-start_time
 print(f'time in seconds:{totaltime}')    

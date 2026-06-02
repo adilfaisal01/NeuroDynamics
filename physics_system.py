@@ -26,10 +26,10 @@ class DoublePendulum(ChaoticSystem):
 
     "Source for double pendulum: https://web.mit.edu/jorloff/www/chaosTalk/double-pendulum/double-pendulum-en.html"
 
-    def __init__(self, parameters={"m1": [0.25,1],
-                                   "m2": [0.25,1.5],
-                                   "l1":[0.5, 1.5],
-                                   "l2":[0.75,1]}, n_states=4):
+    def __init__(self, parameters={"m1": [0.25,1.5],
+                                   "m2": [0.25,2.5],
+                                   "l1":[0.5, 2.5],
+                                   "l2":[0.5,2.5]}, n_states=4):
         self.parameters=parameters
         self.n_states=n_states
     
