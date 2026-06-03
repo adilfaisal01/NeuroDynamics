@@ -30,4 +30,7 @@ for dlen in 1000 2500 5000; do
         done
     done
 done
-echo "All runs completed!"
+echo "All runs completed! Container will stay alive for you to grab outputs."
+echo "Use 'docker stop' or terminate in RunPod dashboard when done."
+# Keep container alive so outputs can be retrieved
+sleep infinity
