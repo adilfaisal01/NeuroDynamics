@@ -15,18 +15,21 @@ from transformer_model import Config,ParamInferenceTransformer
 
 @dataclass
 class config_transformer:
-    n_head= 16
-    batch_size=32
-    lr=1e-3
-    num_epochs=os.getenv("NE",1)
-    dseq_len= os.getenv("DS_LEN", 1000)
-    embed_dim= os.getenv("ED",16)
+    n_head:int= int(os.getenv("HEAD",2))
+    batch_size:int=int(os.getenv("BATCH",32))
+    lr:float=float(os.getenv("LR",1e-4))
+    num_epochs:int=int(os.getenv("NE",1))
+    dseq_len:int= int(os.getenv("DS_LEN", 1000))
+    embed_dim:int= int(os.getenv("ED",16))
+    hidden_dim:int=int(os.getenv("HD",1024))
+
+transformer_setup=config_transformer()
     
 parser = argparse.ArgumentParser(description="Train Transformer on double pendulum data")
 
 # Output / model
 parser.add_argument("--model_name", type=str, default=os.getenv("NAME", "model_file.pth"), help="Name of saved model file")
-parser.add_argument("--model_type", type=str, default=os.getenv("TYPE", "model_file.pth"), help="Model Type")
+parser.add_argument("--model_type", type=str, default=os.getenv("TYPE", "transformer"), help="Model Type")
 # Paths
 parser.add_argument("--dataset_dir", type=str, default=os.getenv("DATASET_DIR", "datasets"), help="Dataset folder path")
 parser.add_argument("--output_dir", type=str, default=os.getenv("OUTPUT_DIR", "outputs"), help="Output folder path")
@@ -82,27 +85,26 @@ class DoublePendulumData(Dataset):
         target_params=self.params[index]
         return target_params,traj
    
-data=DataLoader(DoublePendulumData(param_tensor_train,norm_trajectories_train),batch_size=args.batch_size,shuffle=True)
+data=DataLoader(DoublePendulumData(param_tensor_train,norm_trajectories_train),batch_size=transformer_setup.batch_size,shuffle=True)
 
 for target_params, traj in data:
     print("Batch target params:", target_params.shape)  # -> [16, 4]
     print("Batch trajectories:", traj.shape)            # -> [16, 5000, 4]
     break  
 
-args.model_type="transformer"
 ## training the model
-modelconfig=Config(n_head=config_transformer.n_head)
+modelconfig=Config(n_head=transformer_setup.n_head,data_len=transformer_setup.dseq_len,embed_dim=transformer_setup.embed_dim,hidden_dim=transformer_setup.hidden_dim)
 model=ParamInferenceTransformer(modelconfig).to(dev)
 
 print(f'training {args.model_type}')
 
 obj_func=MSELoss()
-optimizer=Adam(model.parameters(),lr=args.lr)
+optimizer=Adam(model.parameters(),lr=transformer_setup.lr)
 
 start_time=time.time()
 loss_hist=[]
 iter_number=[]
-for epoch in range(args.num_epochs):
+for epoch in range(transformer_setup.num_epochs):
     epoch_loss = 0
     for target_params, traj in data:
         optimizer.zero_grad()
