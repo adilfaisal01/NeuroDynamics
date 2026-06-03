@@ -8,7 +8,7 @@ for dlen in 250 500 1000 2500; do
         # Set environment variables for this run
         export LR=1e-3
         export HEAD=$head
-        export NAME="model_HEAD${head}_sequencelength${dlen}.pth"  # output filename
+        export NAME="model_HEAD${head}_sequencelength${dlen}_transformer.pth"  # output filename
         export TYPE="transformer"
         export NE=200
         export DS_LEN=$dlen

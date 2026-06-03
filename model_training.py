@@ -6,30 +6,23 @@ import argparse
 import matplotlib.pyplot as plt
 import os
 from dataclasses import dataclass
+from torch.nn import MSELoss
+from torch.optim import Adam
+from torch.utils.data import Dataset,DataLoader
+import time
+from transformer_model import Config,ParamInferenceTransformer
+
 
 @dataclass
-class config:
-    n_head= os.getenv("HEAD",2)
-    batch_size=os.getenv("BATCH",32)
-    lr=os.getenv("LR",1e-4)
+class config_transformer:
+    n_head= 16
+    batch_size=32
+    lr=1e-3
     num_epochs=os.getenv("NE",1)
     dseq_len= os.getenv("DS_LEN", 1000)
-    
-    
-    
+    embed_dim= os.getenv("ED",16)
     
 parser = argparse.ArgumentParser(description="Train Transformer on double pendulum data")
-
-# Embed and model dimensions
-parser.add_argument("--embed_dim", type=int, default=int(os.getenv("ED", 16)), help="Embedding dimension")
-parser.add_argument("--hidden_dim", type=int, default=int(os.getenv("HD", 32)), help="Feedforward hidden dimension")
-parser.add_argument("--n_head", type=int, default=int(os.getenv("HEAD", 2)), help="Number of attention heads")
-
-# Training settings
-parser.add_argument("--batch_size", type=int, default=int(os.getenv("BATCH", 32)), help="Batch size")
-parser.add_argument("--lr", type=float, default=float(os.getenv("LR", 1e-4)), help="Learning rate")
-parser.add_argument("--num_epochs", type=int, default=int(os.getenv("NE", 1)), help="Number of training epochs")
-parser.add_argument("--dseq_len", type=int, default=int(os.getenv("DS_LEN", 1000)), help="Downsampled length of trajectory if any")
 
 # Output / model
 parser.add_argument("--model_name", type=str, default=os.getenv("NAME", "model_file.pth"), help="Name of saved model file")
@@ -78,9 +71,6 @@ print(param_tensor_train.shape)
 print(norm_trajectories_train.shape)
 
 # catering data to torch emthod for transformer
-
-from torch.utils.data import Dataset,DataLoader
-
 class DoublePendulumData(Dataset):
     def __init__(self,param_tensor,norm_trajectories):
         self.params=param_tensor
@@ -99,27 +89,16 @@ for target_params, traj in data:
     print("Batch trajectories:", traj.shape)            # -> [16, 5000, 4]
     break  
 
-from torch.nn import MSELoss
-from torch.optim import Adam
-
-
-if args.model_type=="transformer":
-    from transformer_model import Config,ParamInferenceTransformer
-    ## training the model
-    modelconfig=Config(n_head=args.n_head,embed_dim=args.embed_dim,hidden_dim=args.hidden_dim,data_len=args.dseq_len)
-    model=ParamInferenceTransformer(modelconfig).to(dev)
-elif args.model_type=="lstm":
-    from LSTMmodel import Config, parameterEstimationLSTM
-    modelconfig=Config(hidden_size=args.hidden_dim)
-    model=parameterEstimationLSTM(modelconfig).to(dev)
-else:
-    raise ValueError("Please clarify which model to be used for training and testing")
+args.model_type="transformer"
+## training the model
+modelconfig=Config(n_head=config_transformer.n_head)
+model=ParamInferenceTransformer(modelconfig).to(dev)
 
 print(f'training {args.model_type}')
 
 obj_func=MSELoss()
 optimizer=Adam(model.parameters(),lr=args.lr)
-import time
+
 start_time=time.time()
 loss_hist=[]
 iter_number=[]
