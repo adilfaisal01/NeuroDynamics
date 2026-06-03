@@ -1,7 +1,10 @@
 #!/bin/bash
 set -e
-set -x
 
-echo "starting transformers"
-
-python3 /deeplearningtransformers/model_training.py "$@"
+if [ "$1" == "sweep" ]; then
+    echo "Starting full hyperparameter sweep..."
+    bash /deeplearningtransformers/runpod_sweep.sh
+else
+    echo "Starting single training run..."
+    python3 /deeplearningtransformers/model_training.py "$@"
+fi
