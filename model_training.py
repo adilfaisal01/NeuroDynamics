@@ -5,7 +5,19 @@ import torch
 import argparse
 import matplotlib.pyplot as plt
 import os
+from dataclasses import dataclass
 
+@dataclass
+class config:
+    n_head= os.getenv("HEAD",2)
+    batch_size=os.getenv("BATCH",32)
+    lr=os.getenv("LR",1e-4)
+    num_epochs=os.getenv("NE",1)
+    dseq_len= os.getenv("DS_LEN", 1000)
+    
+    
+    
+    
 parser = argparse.ArgumentParser(description="Train Transformer on double pendulum data")
 
 # Embed and model dimensions
@@ -22,15 +34,13 @@ parser.add_argument("--dseq_len", type=int, default=int(os.getenv("DS_LEN", 1000
 # Output / model
 parser.add_argument("--model_name", type=str, default=os.getenv("NAME", "model_file.pth"), help="Name of saved model file")
 parser.add_argument("--model_type", type=str, default=os.getenv("TYPE", "model_file.pth"), help="Model Type")
-
-
 # Paths
 parser.add_argument("--dataset_dir", type=str, default=os.getenv("DATASET_DIR", "datasets"), help="Dataset folder path")
 parser.add_argument("--output_dir", type=str, default=os.getenv("OUTPUT_DIR", "outputs"), help="Output folder path")
 
 args = parser.parse_args()
 
-trainingdata=pd.read_csv('datasets/dataset_doublependulum_22.csv')
+trainingdata=pd.read_parquet('datasets/dataset_doublependulumpts.parquet')
 config_groups=trainingdata.groupby('config_id')
 trajectories={cid: group.copy() for cid,group in config_groups}
 
