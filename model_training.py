@@ -18,7 +18,6 @@ parser.add_argument("--batch_size", type=int, default=int(os.getenv("BATCH", 32)
 parser.add_argument("--lr", type=float, default=float(os.getenv("LR", 1e-4)), help="Learning rate")
 parser.add_argument("--num_epochs", type=int, default=int(os.getenv("NE", 1)), help="Number of training epochs")
 parser.add_argument("--dseq_len", type=int, default=int(os.getenv("DS_LEN", 1000)), help="Downsampled length of trajectory if any")
-parser.add_argument("--number_data", type=int, default=int(os.getenv("NUMBER_DATA", 1)), help="Which dataset to use (1 or 2)")
 
 # Output / model
 parser.add_argument("--model_name", type=str, default=os.getenv("NAME", "model_file.pth"), help="Name of saved model file")
@@ -31,12 +30,7 @@ parser.add_argument("--output_dir", type=str, default=os.getenv("OUTPUT_DIR", "o
 
 args = parser.parse_args()
 
-if args.number_data==2:
-    trainingdata=pd.read_csv('datasets/dataset_doublependulum_22.csv')
-elif args.number_data==1:
-    trainingdata=pd.read_csv('datasets/dataset_doublependulum_1000pts.csv')
-else:
-    raise ValueError("please choose either 1 or 2 for dataset config")
+trainingdata=pd.read_csv('datasets/dataset_doublependulum_22.csv')
 config_groups=trainingdata.groupby('config_id')
 trajectories={cid: group.copy() for cid,group in config_groups}
 
