@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Loop over different attention heads
-for dlen in 250 500 1000 2500; do
+for dlen in 250 500 1000 2500 5000; do
     for head in 4 8 16; do
         echo "=== Training with HEAD=$head, SEQUENCE LENGTH=$dlen==="
 
