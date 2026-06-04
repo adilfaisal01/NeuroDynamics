@@ -8,7 +8,7 @@ start_time=time.time()
 # double pendulum-- dataset generation, 10k configurations
 dp=DoublePendulum()
 Dataset_DoublePendulum=[]
-for i in range(600):
+for i in range(3000):
     sample_parameters=dp.sample_parameters()
     p_groundtruth,T,y_nonoise=dp.solve_system()
     y_noisy=dp.noisy_data_output(y_nonoise)
@@ -40,7 +40,7 @@ for i in range(600):
     print(f'Config Id: {i} completed for DP')
 
 Dataset=pd.concat(Dataset_DoublePendulum)
-Dataset.to_parquet('dataset_doublependulumpts.parquet',index=False)
+Dataset.to_parquet('datasets/dataset_doublependulumpts_setB.parquet',index=False)
 
 totaltime=time.time()-start_time
 print(f'time in seconds:{totaltime}')    
