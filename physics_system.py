@@ -28,8 +28,8 @@ class DoublePendulum(ChaoticSystem):
 
     def __init__(self, parameters={"m1": [0.25,1.5],
                                    "m2": [0.25,2.5],
-                                   "l1":[0.45, 2.5],
-                                   "l2":[0.45,2.5]}, n_states=4):
+                                   "l1":[0.5, 2.5],
+                                   "l2":[0.5,2.5]}, n_states=4):
         self.parameters=parameters
         self.n_states=n_states
     
