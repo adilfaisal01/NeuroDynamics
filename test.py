@@ -42,7 +42,7 @@ for cid, group in dataset_inference_test.groupby("config_id"):
     h_losses.append(h_loss)
     u+=1
     print(f'steps completed: {u}')
-    if u>=50:
+    if u>=200:
         break
 
 time_taken=time.time()-start_time
