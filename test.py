@@ -5,8 +5,7 @@ from _hamiltonian import DoublePendulum
 from torch.utils.data import Dataset,DataLoader
 import pandas as pd
 import numpy as np
-
-
+import time
 from transformer_model import Config, ParamInferenceTransformer
 
 cfg= Config(n_head=16,embed_dim=256,hidden_dim=2048,data_len=5000)
@@ -20,6 +19,8 @@ model_transformer.load_state_dict(torch.load('outputs/model_dlen5000_big.pth',ma
 ## loading the dataset
 dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_finetune.parquet')
 h_losses = []
+u=0
+start_time=time.time()
 for cid, group in dataset_inference_test.groupby("config_id"):
     traj = torch.tensor(group.values, dtype=torch.float32)
     
@@ -39,7 +40,13 @@ for cid, group in dataset_inference_test.groupby("config_id"):
     H = np.array([dp.hamiltonian(s[0], s[1], s[2], s[3]) for s in states])
     h_loss = np.var(H) / np.mean(np.abs(H))
     h_losses.append(h_loss)
+    u+=1
+    print(f'steps completed: {u}')
+    if u>=50:
+        break
 
+time_taken=time.time()-start_time
+print(f'time taken: {time_taken} \n')
 print(f"Mean H-loss over Set B: {np.mean(h_losses):.6e}")        
         
 
