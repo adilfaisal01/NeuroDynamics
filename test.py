@@ -17,7 +17,7 @@ model_transformer.eval()
 model_transformer.load_state_dict(torch.load('outputs/model_dlen5000_big.pth',map_location=dev))
 
 ## loading the dataset
-dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_finetune.parquet')
+dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_setC.parquet')
 h_losses = []
 u=0
 start_time=time.time()
