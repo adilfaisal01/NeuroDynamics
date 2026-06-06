@@ -12,6 +12,7 @@ from torch.utils.data import Dataset,DataLoader
 import time
 from transformer_model import Config,ParamInferenceTransformer
 
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "/workspace/outputs")
 
 @dataclass
 class config_transformer:
@@ -151,9 +152,9 @@ plt.plot(iter_number,loss_hist)
 plt.xlabel('Iteration #')
 plt.ylabel('Loss')
 plt.title('Training loss')
-plt.savefig(f"outputs/loss_plot_{args.model_name.replace('.pth','')}.png")
+plt.savefig(args.output_dir/f"loss_plot_{args.model_name.replace('.pth','')}.png")
 plt.close()
-torch.save(model_transformer.state_dict(),f"outputs/{args.model_name}")
+torch.save(model_transformer.state_dict(),args.output_dir/{args.model_name})
 
 norm_trajectories_test=[]
 param_storage_test=[]
@@ -223,7 +224,7 @@ for i in range(errors.shape[1]):
     plt.title(f"Error for Param {i+1}")
 
 plt.tight_layout()
-plt.savefig(f"outputs/true_vs_predicted_{args.model_name.replace('.pth','')}_test_mse={avg_test_loss:.6f}_ham={avg_h_loss:.6f}.png")
+plt.savefig(args.output_dir/f"true_vs_predicted_{args.model_name.replace('.pth','')}_test_mse={avg_test_loss:.6f}_ham={avg_h_loss:.6f}.png")
 plt.close()
 
 average_errors=errors.mean(axis=0)
@@ -233,5 +234,5 @@ error_df=pd.DataFrame({
     "avg_error": average_errors,
     "Variance":error_var
 })
-csv_path=f"outputs/true_vs_predicted_{args.model_name.replace('.pth','')}_test_mse={avg_test_loss:.6f}_ham={avg_h_loss:.6f}.csv"
+csv_path=args.output_dir/f"true_vs_predicted_{args.model_name.replace('.pth','')}_test_mse={avg_test_loss:.6f}_ham={avg_h_loss:.6f}.csv"
 error_df.to_csv(csv_path,index=False)
