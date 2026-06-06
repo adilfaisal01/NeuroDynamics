@@ -8,7 +8,7 @@ case "$1" in
         ;;
     finetune)
         echo "Starting Stage 2 fine-tuning..."
-        python3 /deeplearningtransformers/physics_tuning.py
+        python3 /deeplearningtransformers/runpod_finetune.sh
         ;;
     *)
         echo "Starting single training run..."
