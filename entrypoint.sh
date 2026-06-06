@@ -1,13 +1,18 @@
 #!/bin/bash
 set -e
 
-# Start SSH so we can connect and download results
-service ssh start
-
-if [ "$1" == "sweep" ]; then
-    echo "Starting full hyperparameter sweep..."
-    bash /deeplearningtransformers/runpod_sweep.sh
-else
-    echo "Starting single training run..."
-    python3 /deeplearningtransformers/model_training.py "$@"
-fi
+case "$1" in
+    sweep)
+        echo "Starting full hyperparameter sweep..."
+        bash /deeplearningtransformers/runpod_sweep.sh
+        ;;
+    finetune)
+        echo "Starting Stage 2 fine-tuning..."
+        python3 /deeplearningtransformers/physics_tuning.py
+        ;;
+    *)
+        echo "Starting single training run..."
+        shift
+        python3 /deeplearningtransformers/model_training.py "$@"
+        ;;
+esac
