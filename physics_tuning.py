@@ -143,6 +143,10 @@ for epoch in range(transformer_setup.num_epochs):
     print(f"Epoch {epoch}: avg_loss = {avg_loss:.6f}")
     loss_hist.append(avg_loss)
     iter_number.append(epoch)
+    if (epoch + 1) % 5 == 0:
+        ckpt_name = args.model_name.replace('.pth', f'_epoch{epoch+1}.pth')
+        torch.save(model_transformer.state_dict(), f"{args.output_dir}/{ckpt_name}")
+        print(f"  Checkpoint saved: {ckpt_name}")
 
 total_runtime=time.time()-start_time
 print(f'total runtime:{total_runtime:.3f}')
