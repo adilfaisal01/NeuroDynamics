@@ -17,7 +17,7 @@ model_transformer.eval()
 model_transformer.load_state_dict(torch.load('outputs/model_dlen5000_big.pth',map_location=dev))
 
 ## loading the dataset
-dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_setC.parquet')
+dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_finetune.parquet')
 h_losses = []
 u=0
 start_time=time.time()
@@ -42,7 +42,7 @@ for cid, group in dataset_inference_test.groupby("config_id"):
     h_losses.append(h_loss)
     u+=1
     print(f'steps completed: {u}')
-    if u>=200:
+    if u>=50:
         break
 
 time_taken=time.time()-start_time
