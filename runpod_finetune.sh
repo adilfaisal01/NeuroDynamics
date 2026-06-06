@@ -3,6 +3,7 @@
 # Usage: bash runpod_sweep.sh
 
 set -e
+echo "=== Starting ==="
 
 export LR=3e-5
 export TYPE="transformer"

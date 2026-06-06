@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
-
+service ssh start
 case "$1" in
     sweep)
         echo "Starting full hyperparameter sweep..."
-        bash /deeplearningtransformers/runpod_sweep.sh
+        exec bash /deeplearningtransformers/runpod_sweep.sh
         ;;
     finetune)
         echo "Starting Stage 2 fine-tuning..."
-        bash /deeplearningtransformers/runpod_finetune.sh
+        exec bash /deeplearningtransformers/runpod_finetune.sh
         ;;
     *)
         echo "Starting single training run..."
