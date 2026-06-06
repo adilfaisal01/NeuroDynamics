@@ -154,3 +154,84 @@ plt.title('Training loss')
 plt.savefig(f"outputs/loss_plot_{args.model_name.replace('.pth','')}.png")
 plt.close()
 torch.save(model_transformer.state_dict(),f"outputs/{args.model_name}")
+
+norm_trajectories_test=[]
+param_storage_test=[]
+true_trajectories_test=[]
+
+for i in range(len(test_trajectories)):
+    angle_pendulum_1_norm=torch.sin(test_trajectories[i][:,6])
+    angle_pendulum_2_norm=torch.sin(test_trajectories[i][:,7])
+    omega_1_norm=torch.sin(test_trajectories[i][:,8])
+    omega_2_norm=torch.sin(test_trajectories[i][:,9])
+    mass_1,mass_2,length_1,length_2=test_trajectories[i][0,1],test_trajectories[i][0,2],test_trajectories[i][0,3],test_trajectories[i][0,4]
+    parameters=torch.tensor([mass_1,mass_2,length_1,length_2])
+    param_storage_test.append(parameters)
+    new=torch.stack((angle_pendulum_1_norm,angle_pendulum_2_norm,omega_1_norm,omega_2_norm),dim=-1)
+    norm_trajectories_test.append(new)
+
+    theta1=test_trajectories[i][:,10]
+    theta2=test_trajectories[i][:,11]
+    omega1=test_trajectories[i][:,12]
+    omega2=test_trajectories[i][:,13]
+    true_tra=torch.stack((theta1,theta2,omega1,omega2),dim=-1)
+    true_trajectories_test.append(true_tra)
+
+param_tensor_test = torch.stack(param_storage_test, dim=0).to(device=dev)
+norm_trajectories_test=torch.stack(norm_trajectories_test,dim=0).to(device=dev)
+true_trajectories_test=torch.stack(true_trajectories_test,dim=0).to(device=dev)
+
+print(param_tensor_test.shape)
+print(norm_trajectories_test.shape)
+
+test_data=DataLoader(DoublePendulumData(param_tensor_test,norm_trajectories_test,true_trajectories_test))
+
+model_transformer.eval()
+all_preds=[]
+all_targets=[]
+loss_test=[]
+hamiltonian_loss_values=[]
+with torch.no_grad():
+    test_loss=0
+    h_loss_total=0
+    for target_params,traj,noiseless in test_data:
+        predicted_params=model_transformer(traj)
+        mse=obj_func(predicted_params,target_params)
+        test_loss+=mse.item()
+        h_val=hamiltonian_loss(predicted_params,noiseless).mean()
+        h_loss_total+=h_val.item()
+        all_targets.append(target_params.cpu())
+        all_preds.append(predicted_params.cpu())
+    avg_test_loss=test_loss/len(test_data)
+    avg_h_loss=h_loss_total/len(test_data)
+    loss_test.append(avg_test_loss)
+    hamiltonian_loss_values.append(avg_h_loss)
+
+print(f'Test loss (MSE): {np.mean(loss_test):.6f}')
+print(f'Test loss (Hamiltonian): {np.mean(hamiltonian_loss_values):.6f}')
+
+all_targets = torch.cat(all_targets, dim=0).numpy()
+all_preds = torch.cat(all_preds, dim=0).numpy()
+
+errors=all_preds-all_targets
+for i in range(errors.shape[1]):
+    plt.subplot(1, errors.shape[1], i+1)
+    plt.plot(errors[:, i], marker='o', linestyle='', alpha=0.7)
+    plt.axhline(0, color='r', linestyle='--')
+    plt.xlabel("Sample Index")
+    plt.ylabel("Error")
+    plt.title(f"Error for Param {i+1}")
+
+plt.tight_layout()
+plt.savefig(f"outputs/true_vs_predicted_{args.model_name.replace('.pth','')}_test_mse={avg_test_loss:.6f}_ham={avg_h_loss:.6f}.png")
+plt.close()
+
+average_errors=errors.mean(axis=0)
+error_var=np.var(errors,axis=0)
+error_df=pd.DataFrame({
+    "param_index": list(range(errors.shape[1])),
+    "avg_error": average_errors,
+    "Variance":error_var
+})
+csv_path=f"outputs/true_vs_predicted_{args.model_name.replace('.pth','')}_test_mse={avg_test_loss:.6f}_ham={avg_h_loss:.6f}.csv"
+error_df.to_csv(csv_path,index=False)
