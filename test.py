@@ -27,7 +27,7 @@ for cid, group in dataset_inference_test.groupby("config_id"):
     # Model input
     x = torch.stack([
         torch.sin(traj[:, 6]), torch.sin(traj[:, 7]),
-        traj[:, 8], traj[:, 9],
+        torch.sin(traj[:, 8]), torch.sin(traj[:, 9]),
     ], dim=-1).unsqueeze(0)
     
     with torch.no_grad():
