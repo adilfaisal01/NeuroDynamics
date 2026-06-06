@@ -16,7 +16,7 @@ export OUTPUT_DIR="/workspace/outputs"
 
 mkdir -p /workspace/outputs
 
-python3 /deeplearningtransformers/physics_tuning.py
+python3 -u /deeplearningtransformers/physics_tuning.py
 
 echo "=== Finished saved as $NAME ==="
 # Keep container alive so we can download
