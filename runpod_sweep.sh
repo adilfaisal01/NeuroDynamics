@@ -20,7 +20,7 @@ for dlen in 2500 5000; do
 
     mkdir -p /workspace/outputs
 
-    python3 /deeplearningtransformers/model_training.py
+    python3 -u /deeplearningtransformers/model_training.py
 
     echo "=== Finished dlen=$dlen, saved as $NAME ==="
 
