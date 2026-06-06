@@ -10,12 +10,14 @@ from transformer_model import Config, ParamInferenceTransformer
 
 cfg= Config(n_head=16,embed_dim=256,hidden_dim=2048,data_len=5000)
 model_transformer=ParamInferenceTransformer(cfg)
+model_2=ParamInferenceTransformer(cfg)
 
 dev=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model_transformer.eval()
-model_transformer.load_state_dict(torch.load('outputs/model_dlen5000_big.pth',map_location=dev))
-
+model_2.eval()
+model_transformer.load_state_dict(torch.load('outputs/model_dlenfinetune_3e-5_0.4_big.pth',map_location=dev))
+model_2.load_state_dict(torch.load('outputs/model_dlen5000_big.pth',map_location=dev))
 ## loading the dataset
 dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_setC.parquet')
 h_losses = []
@@ -32,7 +34,9 @@ for cid, group in dataset_inference_test.groupby("config_id"):
     ], dim=-1).unsqueeze(0)
     
     with torch.no_grad():
-        pred = model_transformer(x).squeeze(0)
+        pred1 = model_transformer(x).squeeze(0)
+        pred2= model_2(x).squeeze(0)
+    pred=(pred1+pred2)/2
     # True params (constant across trajectory, first row)
     true_params = traj[0, 1:5]  # m1, m2, l1, l2
     # MSE
