@@ -10,7 +10,7 @@ export TYPE="transformer"
 export BATCH=64
 export LAMBDA=0.4
 export NAME="model_dlenfinetune_${LR}_${LAMBDA}_big.pth"
-export NE=200
+export NE=20
 
 export OUTPUT_DIR="/workspace/outputs"
 
