@@ -151,7 +151,7 @@ for epoch in range(transformer_setup.num_epochs):
 total_runtime=time.time()-start_time
 print(f'total runtime:{total_runtime:.3f}')
 
-os.makedirs("outputs", exist_ok=True)
+os.makedirs(args.output_dir, exist_ok=True)
 plt.plot(iter_number,loss_hist)
 plt.xlabel('Iteration #')
 plt.ylabel('Loss')
