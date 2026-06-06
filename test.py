@@ -17,8 +17,9 @@ model_transformer.eval()
 model_transformer.load_state_dict(torch.load('outputs/model_dlen5000_big.pth',map_location=dev))
 
 ## loading the dataset
-dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_finetune.parquet')
+dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_setC.parquet')
 h_losses = []
+param_losses=[]
 u=0
 start_time=time.time()
 for cid, group in dataset_inference_test.groupby("config_id"):
@@ -32,7 +33,11 @@ for cid, group in dataset_inference_test.groupby("config_id"):
     
     with torch.no_grad():
         pred = model_transformer(x).squeeze(0)
-    
+    # True params (constant across trajectory, first row)
+    true_params = traj[0, 1:5]  # m1, m2, l1, l2
+    # MSE
+    mse = ((pred - true_params) ** 2)
+    param_losses.append(mse)
     # H-loss on noiseless states
     states = traj[:, 10:14].numpy()
     m1, m2, l1, l2 = pred.tolist()
@@ -47,6 +52,8 @@ for cid, group in dataset_inference_test.groupby("config_id"):
 
 time_taken=time.time()-start_time
 print(f'time taken: {time_taken} \n')
-print(f"Mean H-loss over Set B: {np.mean(h_losses):.6e}")        
+print(f"Mean H-loss over Set C: {np.mean(h_losses):.6e} \n")
+print(f"mean param loss over setc C: {np.mean(param_losses)}\n")
+print()
         
 
