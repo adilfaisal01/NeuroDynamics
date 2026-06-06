@@ -17,10 +17,10 @@ from _hamiltonian import DoublePendulum
 
 @dataclass
 class config_transformer:
-    batch_size:int=int(os.getenv("BATCH",64))
+    batch_size:int=int(os.getenv("BATCH",1))
     lr:float=float(os.getenv("LR",1e-4))
     num_epochs:int=int(os.getenv("NE",1))
-    lambda:float=float(os.getenv("LAMBDA",0.54))
+    lambda_h:float=float(os.getenv("LAMBDA",0.5))
 
 transformer_setup=config_transformer()
     
@@ -92,12 +92,12 @@ class DoublePendulumData(Dataset):
     def __getitem__(self, index):
         traj=self.trajectories[index]
         target_params=self.params[index]
-        true_trajecs=self.noiseless_traj
+        true_trajecs=self.noiseless_traj[index]
         return target_params,traj,true_trajecs
    
 data=DataLoader(DoublePendulumData(param_tensor_train,norm_trajectories_train,true_trajectories_train),batch_size=transformer_setup.batch_size,shuffle=True)
 
-for target_params, traj in data:
+for target_params, traj, _ in data:
     print("Batch target params:", target_params.shape)  # -> [16, 4]
     print("Batch trajectories:", traj.shape)            # -> [16, 5000, 4]
     break  
@@ -120,15 +120,15 @@ for epoch in range(transformer_setup.num_epochs):
     epoch_loss = 0
     for target_params, traj, noiseless in data:
         optimizer.zero_grad()
-        pred_params = model_tranformer(traj)
+        pred_params = model_transformer(traj)
         
         h_loss=0
         for i in range(transformer_setup.batch_size):
             dp = DoublePendulum(*pred_params[i].tolist())
-            H = np.array([dp.hamiltonian(*s) for s in noiseless[i].numpy()])
+            H = np.array([dp.hamiltonian(*s) for s in noiseless[i].cpu().numpy()])
             h_loss += np.var(H) / np.mean(np.abs(H))
         h_loss/=transformer_setup.batch_size
-        loss = obj_func(pred_params, target_params)+h_loss
+        loss = obj_func(pred_params, target_params)+transformer_setup.lambda_h*torch.tensor(h_loss,requires_grad=True)
         loss.backward()
         optimizer.step()
         epoch_loss += loss.item()
