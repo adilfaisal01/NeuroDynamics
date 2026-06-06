@@ -11,9 +11,7 @@ from torch.optim import Adam
 from torch.utils.data import Dataset,DataLoader
 import time
 from transformer_model import Config,ParamInferenceTransformer
-import sys
-sys.path.insert(0,'test_suites')
-from _hamiltonian import DoublePendulum
+
 
 @dataclass
 class config_transformer:
@@ -21,6 +19,19 @@ class config_transformer:
     lr:float=float(os.getenv("LR",1e-4))
     num_epochs:int=int(os.getenv("NE",1))
     lambda_h:float=float(os.getenv("LAMBDA",0.5))
+
+def hamiltonian_loss(pred_params, states, g=9.81):
+    m1, m2, l1, l2 = pred_params[:, 0], pred_params[:, 1], pred_params[:, 2], pred_params[:, 3]
+    th1, om1, th2, om2 = states[:, :, 0], states[:, :, 1], states[:, :, 2], states[:, :, 3]
+    
+    V = -(m1 + m2).unsqueeze(1) * g * l1.unsqueeze(1) * torch.cos(th1) - m2.unsqueeze(1) * g * l2.unsqueeze(1) * torch.cos(th2)
+    T1 = 0.5 * m1.unsqueeze(1) * l1.unsqueeze(1)**2 * om1**2
+    T2 = 0.5 * m2.unsqueeze(1) * (l1.unsqueeze(1)**2 * om1**2 + l2.unsqueeze(1)**2 * om2**2 + 2 * l1.unsqueeze(1) * l2.unsqueeze(1) * om1 * om2 * torch.cos(th1 - th2))
+    
+    H = T1 + T2 + V                              # (B, T)
+    H_var = torch.var(H, dim=1)                   # (B,)
+    H_mean = torch.mean(torch.abs(H), dim=1)      # (B,)
+    return H_var / H_mean                         # (B,)
 
 transformer_setup=config_transformer()
     
@@ -121,14 +132,8 @@ for epoch in range(transformer_setup.num_epochs):
     for target_params, traj, noiseless in data:
         optimizer.zero_grad()
         pred_params = model_transformer(traj)
-        
-        h_loss=0
-        for i in range(transformer_setup.batch_size):
-            dp = DoublePendulum(*pred_params[i].tolist())
-            H = np.array([dp.hamiltonian(*s) for s in noiseless[i].cpu().numpy()])
-            h_loss += np.var(H) / np.mean(np.abs(H))
-        h_loss/=transformer_setup.batch_size
-        loss = obj_func(pred_params, target_params)+transformer_setup.lambda_h*torch.tensor(h_loss,requires_grad=True)
+        h_loss=hamiltonian_loss(pred_params,noiseless).mean()
+        loss = obj_func(pred_params, target_params)+transformer_setup.lambda_h*h_loss
         loss.backward()
         optimizer.step()
         epoch_loss += loss.item()

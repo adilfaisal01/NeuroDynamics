@@ -1,0 +1,21 @@
+#!/bin/bash
+# RunPod sweep: bigger model, 2 sequence lengths
+# Usage: bash runpod_sweep.sh
+
+set -e
+
+export LR=1e-4
+export TYPE="transformer"
+export BATCH=64
+export LAMBDA=0.4
+export NAME="model_dlenfinetune_${LR}_${LAMBDA}_big.pth"
+
+export OUTPUT_DIR="/workspace/outputs"
+
+mkdir -p /workspace/outputs
+
+python3 /deeplearningtransformers/physics_tuning.py
+
+echo "=== Finished saved as $NAME ==="
+# Keep container alive so we can download
+sleep infinity
