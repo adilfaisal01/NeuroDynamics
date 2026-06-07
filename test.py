@@ -20,13 +20,14 @@ model_transformer.load_state_dict(torch.load('outputs/model_dlenfinetune_3e-5_0.
 model_2.load_state_dict(torch.load('outputs/model_dlen5000_big.pth',map_location=dev))
 ## loading the dataset
 dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_setC.parquet')
-h_losses = []
-param_losses=[]
+
 
 alpha_lis  =[0.1,0.3,0.5,0.7,0.9]
 start_time=time.time()
 for alpha in alpha_lis:
     u=0
+    h_losses = []
+    param_losses=[]
     for cid, group in dataset_inference_test.groupby("config_id"):
         traj = torch.tensor(group.values, dtype=torch.float32)
         
