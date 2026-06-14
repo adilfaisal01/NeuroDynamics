@@ -8,8 +8,13 @@ echo "=== Starting ==="
 export LR=3e-5
 export TYPE="transformer"
 export BATCH=64
-export LAMBDA=0.4
-export NAME="model_dlenfinetune_${LR}_${LAMBDA}_big.pth"
+LAMBDA_VALUES=(0.01 0.1 0.2)
+for LAMBDA in "${LAMBDA_VALUES[@]}"; do
+  export LAMBDA
+  export NAME="model_dlenfinetune_${LR}_${LAMBDA}_big.pth"
+  python3 -u /deeplearningtransformers/physics_tuning.py
+  echo "=== Finished saved as $NAME ==="
+done
 export NE=20
 
 export OUTPUT_DIR="/workspace/outputs"
