@@ -125,23 +125,62 @@ print(f'training {args.model_type}')
 obj_func=MSELoss()
 optimizer=Adam(model_transformer.parameters(),lr=transformer_setup.lr)
 
+def plot_loss_curves(mse_hist, ham_hist, combined_hist, epochs, output_path):
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+
+    axes[0].plot(epochs, mse_hist, color='blue', label='MSE Loss')
+    axes[0].set_xlabel('Epoch')
+    axes[0].set_ylabel('MSE Loss')
+    axes[0].set_title('MSE Loss')
+    axes[0].grid(True, alpha=0.3)
+
+    axes[1].plot(epochs, ham_hist, color='red', label='Hamiltonian Loss')
+    axes[1].set_xlabel('Epoch')
+    axes[1].set_ylabel('Hamiltonian Loss')
+    axes[1].set_title('Hamiltonian Loss')
+    axes[1].grid(True, alpha=0.3)
+
+    axes[2].plot(epochs, mse_hist, color='blue', label='MSE Loss')
+    axes[2].plot(epochs, ham_hist, color='red', label='Hamiltonian Loss')
+    axes[2].plot(epochs, combined_hist, color='green', label='Combined Loss')
+    axes[2].set_xlabel('Epoch')
+    axes[2].set_ylabel('Loss')
+    axes[2].set_title('All Loss Terms')
+    axes[2].legend()
+    axes[2].grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(output_path)
+    plt.close()
+
 start_time=time.time()
-loss_hist=[]
+mse_hist=[]
+ham_hist=[]
+combined_hist=[]
 iter_number=[]
 for epoch in range(transformer_setup.num_epochs):
-    epoch_loss = 0
+    epoch_mse = 0
+    epoch_ham = 0
+    epoch_combined = 0
     for target_params, traj, noiseless in data:
         optimizer.zero_grad()
         pred_params = model_transformer(traj)
         h_loss=hamiltonian_loss(pred_params,noiseless).mean()
-        loss = obj_func(pred_params, target_params)+transformer_setup.lambda_h*h_loss
+        mse_loss = obj_func(pred_params, target_params)
+        loss = mse_loss+transformer_setup.lambda_h*h_loss
         loss.backward()
         optimizer.step()
-        epoch_loss += loss.item()
+        epoch_mse += mse_loss.item()
+        epoch_ham += h_loss.item()
+        epoch_combined += loss.item()
     
-    avg_loss = epoch_loss / len(data)  # average over batches
-    print(f"Epoch {epoch}: avg_loss = {avg_loss:.6f}")
-    loss_hist.append(avg_loss)
+    avg_mse = epoch_mse / len(data)
+    avg_ham = epoch_ham / len(data)
+    avg_combined = epoch_combined / len(data)
+    print(f"Epoch {epoch}: MSE={avg_mse:.6f}, Ham={avg_ham:.6f}, Combined={avg_combined:.6f}")
+    mse_hist.append(avg_mse)
+    ham_hist.append(avg_ham)
+    combined_hist.append(avg_combined)
     iter_number.append(epoch)
     if (epoch + 1) % 5 == 0:
         ckpt_name = args.model_name.replace('.pth', f'_epoch{epoch+1}.pth')
@@ -152,12 +191,8 @@ total_runtime=time.time()-start_time
 print(f'total runtime:{total_runtime:.3f}')
 
 os.makedirs(args.output_dir, exist_ok=True)
-plt.plot(iter_number,loss_hist)
-plt.xlabel('Iteration #')
-plt.ylabel('Loss')
-plt.title('Training loss')
-plt.savefig(f"{args.output_dir}/loss_plot_{args.model_name.replace('.pth','')}.png")
-plt.close()
+plot_loss_curves(mse_hist, ham_hist, combined_hist, iter_number,
+                 f"{args.output_dir}/loss_plot_{args.model_name.replace('.pth','')}.png")
 torch.save(model_transformer.state_dict(),f"{args.output_dir}/{args.model_name}")
 
 norm_trajectories_test=[]
