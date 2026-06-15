@@ -15,7 +15,7 @@ struct DoublePendulum {
     };
 
     Eigen::Vector4d dynamics(const Eigen::Vector4d& x) const {
-        double theta1 = x(0), omega1 = x(1), theta2 = x(2), omega2 = x(3);
+        double theta1 = x(0), theta2 = x(1), omega1 = x(2), omega2 = x(3);
         double diff_theta = theta1 - theta2;
         double denom1 = l1 * (2 * m1 + m2 - (m2 * cos(2 * diff_theta)));
         double denom2 = l2 * (2 * m1 + m2 - (m2 * cos(2 * diff_theta)));
@@ -33,7 +33,7 @@ struct DoublePendulum {
     }
 
     double Hamiltonian(const Eigen::Vector4d& x) const {
-        double theta1 = x(0), omega1 = x(1), theta2 = x(2), omega2 = x(3);
+        double theta1 = x(0), theta2 = x(1), omega1 = x(2), omega2 = x(3);
         double V = -(m1 + m2) * g * l1 * cos(theta1) - m2 * g * l2 * cos(theta2);
         double t1 = 0.5 * (m1 * pow(l1, 2) * pow(omega1, 2));
         double t2 = 0.5 * m2 * (pow(l1, 2) * pow(omega1, 2)
@@ -47,7 +47,7 @@ struct DoublePendulum {
                             double theta1_0, double theta2_0,
                             double omega1_0, double omega2_0) const {
         Eigen::Vector4d x;
-        x << theta1_0, omega1_0, theta2_0, omega2_0;
+        x << theta1_0, theta2_0, omega1_0, omega2_0;
         double H0 = Hamiltonian(x);
         double max_drift = 0.0;
         for (double t = 0; t <= T; t += dt) {
@@ -88,10 +88,10 @@ PYBIND11_MODULE(_hamiltonian, m) {
              py::arg("omega1_0"), py::arg("omega2_0"),
              "Simulate double pendulum and return (H0, deltaH_max)")
         .def("hamiltonian", [](const DoublePendulum& self,
-                                double theta1, double omega1,
-                                double theta2, double omega2) {
+                                double theta1, double theta2,
+                                double omega1, double omega2) {
              Eigen::Vector4d x;
-             x << theta1, omega1, theta2, omega2;
+             x << theta1, theta2, omega1, omega2;
              return self.Hamiltonian(x);
         }, "Compute Hamiltonian at a given state")
         .def_readonly("m1", &DoublePendulum::m1)
