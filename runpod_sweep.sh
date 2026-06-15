@@ -16,7 +16,7 @@ for dlen in 2500 5000; do
     export DS_LEN=$dlen
     export ED=256
     export HD=2048
-    export OUTPUT_DIR="/workspace/outputs/fixed_model_runs"
+    export OUTPUT_DIR="/workspace/outputs/fixed_model_runs/"
 
     mkdir -p /workspace/outputs
 

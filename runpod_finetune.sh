@@ -9,7 +9,7 @@ export LR=3e-5
 export TYPE="transformer"
 export BATCH=64
 export NE=20
-export OUTPUT_DIR="/workspace/outputs/fixed_models"
+export OUTPUT_DIR="/workspace/outputs/fixed_models/"
 
 mkdir -p /workspace/outputs
 
