@@ -14,7 +14,7 @@ model_transformer=ParamInferenceTransformer(cfg)
 dev=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model_transformer.eval()
-model_transformer.load_state_dict(torch.load('stage2_outputs/lambda0.4/model_dlenfinetune_3e-5_0.4_big.pth',map_location=dev))
+model_transformer.load_state_dict(torch.load('stage2_outputs/lambda0.1/model_dlenfinetune_3e-5_0.1_big.pth',map_location=dev))
 ## loading the dataset
 dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_setC.parquet')
 total_iters=len((dataset_inference_test["config_id"]).unique())
