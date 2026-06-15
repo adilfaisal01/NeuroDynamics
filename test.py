@@ -10,23 +10,21 @@ from transformer_model import Config, ParamInferenceTransformer
 
 cfg= Config(n_head=16,embed_dim=256,hidden_dim=2048,data_len=5000)
 model_transformer=ParamInferenceTransformer(cfg)
-model_2=ParamInferenceTransformer(cfg)
 
 dev=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model_transformer.eval()
-model_2.eval()
-model_transformer.load_state_dict(torch.load('outputs/model_dlenfinetune_3e-5_0.4_big.pth',map_location=dev))
+model_transformer.load_state_dict(torch.load('stage2_outputs/lambda0.4/model_dlenfinetune_3e-5_0.4_big.pth',map_location=dev))
 ## loading the dataset
 dataset_inference_test= pd.read_parquet('datasets/dataset_doublependulumpts_setC.parquet')
-
+total_iters=len((dataset_inference_test["config_id"]).unique())
 
 
 start_time=time.time()
-
 u=0
 h_losses = []
 param_losses=[]
+abs_losses=[]
 for cid, group in dataset_inference_test.groupby("config_id"):
     traj = torch.tensor(group.values, dtype=torch.float32)
     
@@ -37,14 +35,14 @@ for cid, group in dataset_inference_test.groupby("config_id"):
     ], dim=-1).unsqueeze(0)
     
     with torch.no_grad():
-        pred1 = model_transformer(x).squeeze(0)
-        pred2= model_2(x).squeeze(0)
-    pred=(alpha*pred1+(1-alpha)*pred2)
+        pred = model_transformer(x).squeeze(0)
     # True params (constant across trajectory, first row)
     true_params = traj[0, 1:5]  # m1, m2, l1, l2
     # MSE
     mse = ((pred - true_params) ** 2)
+    mae= torch.abs(pred-true_params)
     param_losses.append(mse)
+    abs_losses.append(mae)
     # H-loss on noiseless states
     states = traj[:, 10:14].numpy()
     m1, m2, l1, l2 = pred.tolist()
@@ -53,12 +51,14 @@ for cid, group in dataset_inference_test.groupby("config_id"):
     h_loss = np.var(H) / np.mean(np.abs(H))
     h_losses.append(h_loss)
     u+=1
-    
-    if u>=50:
-        print(f'steps completed: {u}')
+    print(f'steps completed: {u}')
+
+    if u>=total_iters:
         break
 print(f"Mean H-loss over Set C: {np.mean(h_losses):.6e} \n")
-print(f"mean param loss over setc C: {np.mean(param_losses)}\n")
+print(f"mean MSE param loss over setc C: {np.mean(param_losses)}\n")
+print(f"mean MAE param loss over setc C: {np.mean(abs_losses)}\n")
+
 
 time_taken=time.time()-start_time
 print(f'time taken: {time_taken} \n')
