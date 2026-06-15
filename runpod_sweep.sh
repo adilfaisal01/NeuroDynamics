@@ -18,7 +18,7 @@ for dlen in 2500 5000; do
     export HD=2048
     export OUTPUT_DIR="/workspace/outputs/fixed_model_runs/"
 
-    mkdir -p /workspace/outputs
+    mkdir -p "$OUTPUT_DIR"
 
     python3 -u /deeplearningtransformers/model_training.py
 

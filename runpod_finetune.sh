@@ -5,13 +5,13 @@
 set -e
 echo "=== Starting ==="
 
-export LR=3e-5
+export LR=1e-3
 export TYPE="transformer"
-export BATCH=64
-export NE=20
+export BATCH=16
+export NE=200
 export OUTPUT_DIR="/workspace/outputs/fixed_models/"
 
-mkdir -p /workspace/outputs
+mkdir -p "$OUTPUT_DIR"
 
 LAMBDA_VALUES=(0.01 0.1 0.2)
 for LAMBDA in "${LAMBDA_VALUES[@]}"; do
