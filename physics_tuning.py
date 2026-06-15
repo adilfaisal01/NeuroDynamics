@@ -23,7 +23,7 @@ class config_transformer:
 
 def hamiltonian_loss(pred_params, states, g=9.81):
     m1, m2, l1, l2 = pred_params[:, 0], pred_params[:, 1], pred_params[:, 2], pred_params[:, 3]
-    th1, om1, th2, om2 = states[:, :, 0], states[:, :, 1], states[:, :, 2], states[:, :, 3]
+    th1, th2, om1, om2 = states[:, :, 0], states[:, :, 1], states[:, :, 2], states[:, :, 3]
     
     V = -(m1 + m2).unsqueeze(1) * g * l1.unsqueeze(1) * torch.cos(th1) - m2.unsqueeze(1) * g * l2.unsqueeze(1) * torch.cos(th2)
     T1 = 0.5 * m1.unsqueeze(1) * l1.unsqueeze(1)**2 * om1**2
