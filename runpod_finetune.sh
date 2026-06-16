@@ -13,7 +13,7 @@ export OUTPUT_DIR="/workspace/outputs/fixed_models/"
 
 mkdir -p "$OUTPUT_DIR"
 
-LAMBDA_VALUES=(0.01 0.1 0.2)
+LAMBDA_VALUES=(1 2 6)
 for LAMBDA in "${LAMBDA_VALUES[@]}"; do
   export LAMBDA
   export NAME="model_dlenfinetune_${LR}_${LAMBDA}_big.pth"
